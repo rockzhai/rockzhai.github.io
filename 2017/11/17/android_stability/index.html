@@ -1,0 +1,284 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title>Android 系统稳定性问题相关梳理 | whiplashz</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/normalize.css/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/purecss/build/pure-min.min.css"><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="//cdn.jsdelivr.net/npm/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="//cdn.jsdelivr.net/gh/codeseven/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="//cdn.jsdelivr.net/gh/codeseven/toastr/build/toastr.min.css"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Android 系统稳定性问题相关梳理</h1><a id="logo" href="/.">whiplashz</a><p class="description">今番良晤，豪兴不浅</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Android 系统稳定性问题相关梳理</h1><div class="post-meta">2017-11-17<span> | </span><span class="category"><a href="/categories/Android/">Android</a></span></div><div class="clear"><div class="toc-article" id="toc"><div class="toc-title">文章目录</div><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#稳定性简述"><span class="toc-number">1.</span> <span class="toc-text"># 稳定性简述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Timeout-gt-ANR"><span class="toc-number">2.</span> <span class="toc-text"># Timeout &gt; ANR</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Service-Timeout"><span class="toc-number">2.1.</span> <span class="toc-text"># Service Timeout</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#BroadcastReceiver-Timeout"><span class="toc-number">2.2.</span> <span class="toc-text"># BroadcastReceiver Timeout</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#ContentProvider-Timeout"><span class="toc-number">2.3.</span> <span class="toc-text"># ContentProvider Timeout</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#小结"><span class="toc-number">2.4.</span> <span class="toc-text"># 小结</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Timeout-gt-WatchDog"><span class="toc-number">3.</span> <span class="toc-text"># Timeout &gt; WatchDog</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Traces-In-ART"><span class="toc-number">4.</span> <span class="toc-text"># Traces In ART</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Crash"><span class="toc-number">5.</span> <span class="toc-text"># Crash</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Crash-流程方法调用关系"><span class="toc-number">5.1.</span> <span class="toc-text">Crash 流程方法调用关系</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Java-层-Crash-小结"><span class="toc-number">5.2.</span> <span class="toc-text">Java 层 Crash 小结</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Native-Crash"><span class="toc-number">5.3.</span> <span class="toc-text"># Native Crash</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#拓展总结"><span class="toc-number">6.</span> <span class="toc-text"># 拓展总结</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text"># 参考资料</span></a></li></ol></div></div><div class="post-content"><h4 id="稳定性简述"><a href="#稳定性简述" class="headerlink" title="# 稳定性简述"></a># 稳定性简述</h4><p>Android 系统是一个开源的系统，稳定性对于每一个定制系统的手机厂商来讲都至关重要，因为稳定性在很大程度上决定着用户的体验，从稳定性的表现上来讲主要为：死机、自动开关机、黑屏、冻屏、闪退、无响应等情况。这些稳定性的问题在使用过程中，即便是仅发生过一到两次，但是影响是比较差的。Google 在 Android Vitals 的统计数据中提到，用户在安装一个软件后当日应用 ANR 发生次数超过一次的，用户卸载该软件的概率几乎为 1。 由此可见，稳定性在 Android 的系统和应用中是一个很重要的方向，稳定在影响着用户对系统（软件）的忠诚度和信赖程度，同时也会对口碑产生较大的影响。</p>
+<p>从技术层面去划分这类问题的话，分为两个大类方向： Timeout 和 Crash . Timeout 是指某一操作或指令长时间无法完成，Crash 是指异常崩溃，类别划分如下：</p>
+<p><img src="../img/android_stability.jpg" alt="stb"></p>
+<p>在应用程序运行在 System 进程的时候，准确来讲应该是 System Not Responding ，但是通常都会一起归到 ANR 大类，毕竟在用户使用层面上，都是程序无响应。</p>
+<h4 id="Timeout-gt-ANR"><a href="#Timeout-gt-ANR" class="headerlink" title="# Timeout &gt; ANR"></a># Timeout &gt; ANR</h4><p>Timeout 是指在 Android 系统中某一任务长时间无法完成，对于不同的 Timeout 系统对指定的不同的超时阀值，超过限定时间极为 Timeout .</p>
+<p>在 Timeout 中，Service、Broadcast 、Provider比较熟悉，Input 指的是在输入事件中所产生的超时无响应，一般 APP 进程在执行一些才走超过一定的时间没有执行完，会弹出『应用无响应』（Application Not Responding，ANR）对话框。对于 ANR 发生的触发原理，有些是因为需要执行的时间过长，稍微等待一下多给一些时间应用依旧能正常运行，而有些则是发生了死锁，再给再多的事件也无法正常运行。</p>
+<ul>
+<li>Service Timeout:比如前台服务在20s内未执行完成；</li>
+<li>broadcast Timeout：比如前台广播在10s内未执行完成</li>
+<li>ContentProvider Timeout：内容提供者执行超时</li>
+<li>InputDispatching Timeout: 输入事件分发超时5s，包括按键和触摸事件。<a id="more"></a>
+<h5 id="Service-Timeout"><a href="#Service-Timeout" class="headerlink" title="# Service Timeout"></a># Service Timeout</h5></li>
+</ul>
+<p>Service Timeout 是”ActivityManager”线程中的 AMS.MainHandler 收到  SERVICE_TIMEOUT_MSG 时所触发的超时异常。</p>
+<blockquote>
+<p>Service 分为前台Service 和后台 Service</p>
+<ul>
+<li>前台 Service ，超时 SERVICE_TIMEOUT = 20s</li>
+<li>后台 Service，超时事件为 SERVICE_BACKGROUND_TIMEOUT = 200s</li>
+</ul>
+<p>由变量 ProcessRecrd.execServicesFg 来决定是否是前台启动</p>
+</blockquote>
+<h5 id="BroadcastReceiver-Timeout"><a href="#BroadcastReceiver-Timeout" class="headerlink" title="# BroadcastReceiver Timeout"></a># BroadcastReceiver Timeout</h5><p>BroadcastReceiver Timeout 是“ ActivityManger”线程中的 BroadcastQueue.BroadcastHandler 收到 BROADCAST_TIMEOUT_MSG 消息时触发。</p>
+<blockquote>
+<p>广播队列分为 foreground 和 background 队列</p>
+<ul>
+<li>对于前台广播，超时 BROADCAST_FG_TIMEOUT = 10s；</li>
+<li>对于后台广播，超时 BROADCAST_FG_TIMEOUT = 60s；</li>
+</ul>
+</blockquote>
+<h5 id="ContentProvider-Timeout"><a href="#ContentProvider-Timeout" class="headerlink" title="# ContentProvider Timeout"></a># ContentProvider Timeout</h5><p>ContentProvider Timeout 是位于“ActivityManager”线程中的 AMS.MainHandler 收到 CONTENT_PROVIDER_PUBLISH_TIMEOUT_MSG 消息时触发。</p>
+<blockquote>
+<p>ContentProvider 超时  CONTENT_PROVIDER_PUBLISH_TIMEOUT = 10s</p>
+<p>区别于 Service 和 BroadcastQueue ，由 Provider 进程启动过程相关</p>
+<p>可以参考四大组件启动流程相关资料</p>
+</blockquote>
+<h5 id="小结"><a href="#小结" class="headerlink" title="# 小结"></a># 小结</h5><p>当系统出现 ANR 时候，会调用 AMS.appNotResponding() 方法，上述 Provider 除外，具体过程可以查阅 Android ANR 信息收集过程来学习。</p>
+<p>Provider 在其进程启动时 publish 过程可能会出现 ANR , 则会直接杀进程以及清理相应信息,而不会弹出 ANR 的对话框 . appNotRespondingViaProvider() 过程会走 appNotResponding() ，很少使用，由用户自定义超时时间.</p>
+<p><strong>Timeout 时长汇总</strong></p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>Timeout 时长</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>前台服务</td>
+<td>20s</td>
+</tr>
+<tr>
+<td>后台服务</td>
+<td>200s</td>
+</tr>
+<tr>
+<td>前台广播</td>
+<td>10s</td>
+</tr>
+<tr>
+<td>后台广播</td>
+<td>60s</td>
+</tr>
+<tr>
+<td>ConentProvider</td>
+<td>10s</td>
+</tr>
+<tr>
+<td>Input 事件分发</td>
+<td>5 s</td>
+</tr>
+</tbody></table>
+<p><strong>超时检测机制</strong></p>
+<ul>
+<li>Service 在超过一定事件没有执行完相应操作来触发移除延时消息，则会触发 ANR</li>
+<li>有序广播的总执行时间超过 2*receiver 个数 *timeout 时长，则会触发 ANR</li>
+<li>有序广播的某一个 receiver 执行过程超过 Timeout 时长，则会触发 ANR</li>
+</ul>
+<h4 id="Timeout-gt-WatchDog"><a href="#Timeout-gt-WatchDog" class="headerlink" title="# Timeout &gt; WatchDog"></a># Timeout &gt; WatchDog</h4><p>在 ANR 之外，Timeout 家族还有一个成员就是 WatchDog Timeout，最为常见的就是运行在 system 进程中的 “watchdog” 线程，还有运行在各个 APP 进程 （包括 system 进程） 的“ FinalizerWatchdogDaemon”，该线程用于监控执行 GC 过程中，守护线程 “FinalizerDaemon” 回收某个对象过长的监视器，当然除此之外还有 dex2oat，wifi 等 WatchDog。</p>
+<p>当发生 ANR 或者 WatchDog Timeout 后，需要手机系统相关信息，用于分析和修复异常，过程中 Trace 的输出是核心环节，另外该过程会清空 /data/anr/traces.txt 的老文件，而原来的 traces 信息一般会先输出到 dropbox ，不过在某些特定的命令或者情况下，也会丢失 traces .</p>
+<p>WatchDog 是在 Android 系统中用于定时检测关键硬件是否正常工作，类似的，在 Framwork 层也有一个软件 WatchDog 用于检测关键系统服务是否发生死锁事件，WatchDog 的主要功能是分析核心服务和重要线程是否处于 Blocked 状态，它是一个运行在 system_server 进程名为 “watchdog” 的线程。</p>
+<blockquote>
+<p>监视 reboot 广播</p>
+<p>监视 mMonitors 关键系统服务是否死锁</p>
+</blockquote>
+<p>当发生 WatchDog Timeout 情况下，会杀死 system_server 触发上层重启，在以下情况下，即使触发了 WatchDog ，也不会杀掉 system_server 进程：</p>
+<ul>
+<li>monkey：设置 IActivityController，拦截 systemNotResponding 事件，比如 monkey</li>
+<li>hang：执行 am hang 命令，不重启</li>
+<li>debugger：连接 debugger 的情况，不重启</li>
+</ul>
+<p><strong>WatchDog 监控的线程</strong> </p>
+<table>
+<thead>
+<tr>
+<th>线程名</th>
+<th>对应handler</th>
+<th>说明</th>
+<th>Timeout</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>main</td>
+<td>new Handler(Looper.getMainLooper())</td>
+<td>当前主线程</td>
+<td>1min</td>
+</tr>
+<tr>
+<td>android.fg</td>
+<td>FgThread.getHandler</td>
+<td>前台线程</td>
+<td>1min</td>
+</tr>
+<tr>
+<td>android.ui</td>
+<td>UiThread.getHandler</td>
+<td>UI线程</td>
+<td>1min</td>
+</tr>
+<tr>
+<td>android.io</td>
+<td>IoThread.getHandler</td>
+<td>I/O线程</td>
+<td>1min</td>
+</tr>
+<tr>
+<td>android.display</td>
+<td>DisplayThread.getHandler</td>
+<td>display线程</td>
+<td>1min</td>
+</tr>
+<tr>
+<td>ActivityManager</td>
+<td>AMS.MainHandler</td>
+<td>AMS线程</td>
+<td>1min</td>
+</tr>
+<tr>
+<td>PowerManagerService</td>
+<td>PMS.PowerManagerHandler</td>
+<td>PMS线程</td>
+<td>1min</td>
+</tr>
+<tr>
+<td>PackageManager</td>
+<td>PKMS.PackageHandler</td>
+<td>PKMS线程</td>
+<td>10min</td>
+</tr>
+</tbody></table>
+<p><strong>WatchDog 监控同步锁</strong></p>
+<p>能够被Watchdog监控的系统服务都实现了Watchdog.Monitor接口，并实现其中的monitor()方法。运行在<code>android.fg</code>线程, 系统中实现该接口类主要有：</p>
+<ul>
+<li>ActivityManagerService</li>
+<li>WindowManagerService</li>
+<li>InputManagerService</li>
+<li>PowerManagerService</li>
+<li>NetworkManagementService</li>
+<li>MountService</li>
+<li>NativeDaemonConnector</li>
+<li>BinderThreadMonitor</li>
+<li>MediaProjectionManagerService</li>
+<li>MediaRouterService</li>
+<li>MediaSessionService</li>
+<li>BinderThreadMonitor</li>
+</ul>
+<p><strong>输出信息</strong></p>
+<p>WatchDog 在 check 过程中出现 1min 阻塞的情况，则会输出：</p>
+<ol>
+<li>AMS.dumpStackTraces : 输出 system_server 和 3个 native 进程的 traces<ul>
+<li>会输出两次：① 在超时 30s 的地方 ② 在超时 1min</li>
+</ul>
+</li>
+<li>WD.dumpStackTraces: 输出 system_server 进程中所有线程的 Kernel stack；<ul>
+<li>节点/proc/%d/task获取进程内所有的线程列表</li>
+<li>节点/proc/%d/stack获取kernel的栈</li>
+</ul>
+</li>
+<li>doSysRq, 触发kernel来dump所有阻塞线程，输出所有CPU的backtrace到kernel log;<ul>
+<li>节点/proc/sysrq-trigger</li>
+</ul>
+</li>
+<li>dropBox，输出文件到/data/system/dropbox，内容是trace + blocked信息</li>
+<li>杀掉system_server，进而触发zygote进程自杀，从而重启上层framework。</li>
+</ol>
+<h4 id="Traces-In-ART"><a href="#Traces-In-ART" class="headerlink" title="# Traces In ART"></a># Traces In ART</h4><p>在 Android 5.0 以后，Google 更换了使用已久的 Dalvik 虚拟机，改为使用 ART ，即 Android Rutime . ART 的机制与 Dalvik 不同，在 Dalvik 下，应用每次运行的时候，字节码需要通过即时的编译器 （ Just In Time，JIT ）将程序转化为机器码，这样会拖慢应用的运行效率，在 ART 环境下，应用第一次安装应用，会进行一道预编译（ AOT, Ahead Of Time），在应用第一次安装的时候，程序的字节码就会被转化成机器码，从而使其真正成为本地应用，不过这样带来的一个比较大的缺点，就是系统在应用过多的情况下预编译的时间会较长。</p>
+<p>在 ART 中，所有的 Java 进程都在 ART 之上，所以在应用发生 ANR 的时候，其中最终的一个环节就是向目标进程发送 SIGNAL_QUIT 信号，传统的 Linux 是终止程序并输出 core，对于 Android 进程而言就是收到信号时，ART 会捕获该信号，并输出相应的 traces 信息到 /data/anr/traces.txt .</p>
+<p>同时也可以通过指令来获取指定进程的 traces 信息，例如输出 pid = 1101 的进程信息：</p>
+<p><code>adb shell kill -3 1101</code></p>
+<p>执行完毕后 traces 信息的结果会保存到文件 /data/anr/tarces.txt . 可以根据 traces 来分析运行过程，定位问题点。</p>
+<h4 id="Crash"><a href="#Crash" class="headerlink" title="# Crash"></a># Crash</h4><p>App Crash ，全称 Application Crash ，按照层级划分可以分为 native crash 和 framework crash（含 app crash）， 在应用开发中我们经常会使用 <code>try...catch...finally</code> 语句来捕获异常，在没有有效的 catch exception 情况下，应用的 crash 会由系统来捕获，进入 crash 流程。</p>
+<p>在 Android 系统中，上层应用均是由 zygote 复刻而来，分为 system_server 系统进程和各种应用进程，这些应用在创建之初就会设置捕获异常的处理器，当系统抛出未捕获的异常时，最终都会交给异常处理器来处理。</p>
+<blockquote>
+<ul>
+<li>对于 system_server 进程，system_server 启动过程中由 RuntimeInit.java 的commonInit 方法设置 UncaughtHandler ，用于捕获异常</li>
+<li>对于应用进程，类似 system_server ，不过是在应用进程创建的过程中调用 RuntimeInit.java 的 commonInit 方法设置 UncaughtHandler</li>
+</ul>
+</blockquote>
+<h5 id="Crash-流程方法调用关系"><a href="#Crash-流程方法调用关系" class="headerlink" title="Crash 流程方法调用关系"></a>Crash 流程方法调用关系</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取进程数据</span></span><br><span class="line">AMP.handleApplicationCrash </span><br><span class="line">    AMS.handleApplicationCrash </span><br><span class="line">    	<span class="comment">// 找到应用所在的进程</span></span><br><span class="line">        AMS.findAppProcess </span><br><span class="line">        <span class="comment">// 其中的 addErrorToDropBox 将 crash 的信息输出到目录 /data/system/dropbox</span></span><br><span class="line">        AMS.handleApplicationCrashInner </span><br><span class="line">            AMS.addErrorToDropBox</span><br><span class="line">            <span class="comment">// 调用 makeAppCrashingLocked，继续处理 crash 流程</span></span><br><span class="line">            <span class="comment">// 发送消息SHOW_ERROR_MSG，弹出提示crash的对话框，等待用户选择</span></span><br><span class="line">            AMS.crashApplication</span><br><span class="line">                AMS.makeAppCrashingLocked</span><br><span class="line">                	<span class="comment">// 获取当前用户下的 crash 应用的 error receiver</span></span><br><span class="line">					<span class="comment">// 忽略当前 app 的广播接收</span></span><br><span class="line">                    AMS.startAppProblemLocked</span><br><span class="line">                    <span class="comment">// ①</span></span><br><span class="line">                    ProcessRecord.stopFreezingAllLocked</span><br><span class="line">                        ActivityRecord.stopFreezingScreenLocked</span><br><span class="line">                            WMS.stopFreezingScreenLocked</span><br><span class="line">                                WMS.stopFreezingDisplayLocked</span><br><span class="line">                    AMS.handleAppCrashLocked</span><br><span class="line">                mUiHandler.sendMessage(SHOW_ERROR_MSG)</span><br><span class="line"><span class="comment">// 杀掉进程</span></span><br><span class="line">Process.killProcess(Process.myPid());</span><br><span class="line">System.exit(<span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+
+<p>方法 ① 位置方法注释：</p>
+<ol>
+<li>处理屏幕旋转相关逻辑；</li>
+<li>移除冻屏的超时消息；</li>
+<li>屏幕旋转动画的相关操作;</li>
+<li>使能输入事件分发功能；</li>
+<li>display冻结时，执行gc操作；</li>
+<li>更新当前的屏幕方向；</li>
+<li>向mH发送configuraion改变的消息。</li>
+</ol>
+<p>上述过程中最为核心的为<code>AMS.handleAppCrashLocked</code>的主要功能：</p>
+<ol>
+<li>当同一进程1分钟之内连续两次crash，则执行的情况下：<ul>
+<li>对于非persistent进程：<ul>
+<li>ASS.handleAppCrashLocked, 直接结束该应用所有activity</li>
+<li>AMS.removeProcessLocked，杀死该进程以及同一个进程组下的所有进</li>
+<li>ASS.resumeTopActivitiesLocked，恢复栈顶第一个非finishing状态的activity</li>
+</ul>
+</li>
+<li>对于persistent进程，则只执行<ul>
+<li>ASS.resumeTopActivitiesLocked，恢复栈顶第一个非finishing状态的activity</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>否则，当进程没连续频繁crash<ul>
+<li>ASS.finishTopRunningActivityLocked，执行结束栈顶正在运行activity</li>
+</ul>
+</li>
+</ol>
+<h5 id="Java-层-Crash-小结"><a href="#Java-层-Crash-小结" class="headerlink" title="Java 层 Crash 小结"></a>Java 层 Crash 小结</h5><p>上述过程其实是 framwork 层关于 crash 的处理流程，对于应用遇到 crash 时，本身并没有捕获异常的话，会进入的如下的流程：</p>
+<ol>
+<li>在发生 crash 的进程，进程创建时便准备好 defaultUncaughtHandler ，用来处理 Uncaught Exception，并输出当前 Crash 的基本信息</li>
+<li>调用当前进程中的 AMP.handleApplicationCrash ; 经过 binder ipc 机制，传递到 system_server进程</li>
+<li>进入 system_server进程，调用 binder 服务端执行 .handleApplicationCrash</li>
+<li>从 mProcessNames 查找目标进程的 PorcessRecord 对象，并将进程 crash 信息输出到目录 /data/system/dropbox</li>
+<li>执行 makeAppCrashingLocked <ul>
+<li>创建当前用户下的 crash 应用的 errror receiver ，并忽略当前应用的广播</li>
+<li>停止当前进程中所有 Activity 的 WMS 冻结屏幕信息，并执行一些屏幕相关操作</li>
+</ul>
+</li>
+<li>再执行 handleAppCrashLocked 方法<ul>
+<li>当 1 分钟内统一进程连续 crash 两次，并且为非 <strong>persistent</strong>进程，则接触该应用的所有Activity ，并杀死该进程以及同一个进程组下的所有进程，然后再恢复栈顶第一个非 finishing 状态的 Activity</li>
+<li>当 1 分钟内同一进程连续 crash 两次并且为 <strong>persistent</strong> 进程，则只恢复栈顶第一个非 finishing 状态的 Activity</li>
+<li>当 1 分钟内同一进程 <strong>未发生连续两次 crash</strong> 时，则执行结束栈顶正在运行的 Activity</li>
+</ul>
+</li>
+<li>通过 mUIHandle 发送 SHOW_ERROR_MSG ，弹出 crash 对话框</li>
+<li>完成 system_server 进程的相关执行，回到 crash 进程开始执行杀掉当前进程的操作</li>
+<li>Crash 进程 over ，通过 binder 死亡通告，告诉 system_server 进程来执行 appDiedLocked()</li>
+<li>执行清理用用相关的 activity/service/ContentProvider/receiver 组件信息</li>
+</ol>
+<p>至此，完成应用 Crash 后系统的执行过程，当一个应用连续 Crash 时，如果是 1 分钟内连续两次 Crash 的非 persistent 进程，会被认定为 bad 进程，那么如果第三次从后台启动该进程（通过 Intent.getFlags 来判断），则会拒绝该进程；Crash 达到两次的非 persistent 进程，便会直接杀死该进程，即便允许自启的 Service 也会在被杀之后再拒绝再次启动。</p>
+<h5 id="Native-Crash"><a href="#Native-Crash" class="headerlink" title="# Native Crash"></a># Native Crash</h5><p>对于 APP 或者 Framework 的Crash，往往通过抛出未捕获的异常而导致 Crash，对于 Kernel ，很多情况是发生 Kernel panic ，内核崩溃的原因往往是驱动或者硬件的问题。</p>
+<p>对于 Native Crash，也就是所谓的 NE ，发生在 Native 层，是 C/C++ 层面的异常，Native 介于 Framework 和 Linux 之间，对于 Native 层的 Crash，当有异常发生时，Kernel 会发送相应的 signal , 当进程捕获到对应 signal，通知 debuggerd 调用 ptrace 来获取有价值的信息。</p>
+<p><img src="http://gityuan.com/images/stability/native_crash.jpg" alt="Native Crash"></p>
+<p>(上图来源：<a href="http://gityuan.com/images/stability/native_crash.jpg" target="_blank" rel="noopener">http://gityuan.com/images/stability/native_crash.jpg</a> )</p>
+<ol>
+<li>Kernel 发送 signal 给 target 进程</li>
+<li>target 进程通过 debuggerd_signal_handler 来捕获 signal<ul>
+<li>建立和 debuggerd 进程的 socket 通道</li>
+<li>将 action = DEBUGGER_ACTION_CRASH 的消息发送给 debuggerd 服务端</li>
+<li>阻塞等待debuggerd服务端的回应数据</li>
+</ul>
+</li>
+<li>debuggerd 作为守护进程，一直等待 socket client 的连接，收到 action = DEBUGGER_ACTION_CRASH 的消息，则执行到 handle_request 位置，通过 fork 创建子线程来进行各种 dump 相关操作</li>
+<li>新创建的进程通过 Socket 和 system_server 进程中的 NativeCrashListener 线程建立 Socket 通道，并向其发送 Native Crash 信息</li>
+<li>NativeCrashListener 线程通过创建新的名为 “NativeCrashReport”的子线程来执行 AMS的 handleApplicationCrashInner 方法</li>
+<li>在途中 perform_dump 是整个 debuggerd 的核心工作，该方法内部调用 engrave_tombston，是一个守护进程的功能内容，此外整个过程还需要与 target 进程通信来获取 target 进程更多的信息。</li>
+<li>在 AMS 中的 handleApplicationCrashInner ，其工作方式和 Java 层的 Crash 处理流程一只。</li>
+</ol>
+<h4 id="拓展总结"><a href="#拓展总结" class="headerlink" title="# 拓展总结"></a># 拓展总结</h4><p>对于 Java 层的 Crash ，通常是抛出一个未捕获的异常 uncaughtExcception 而导致的崩溃，但是如果说把所有的异常都进行 catch ，这样是否应用或者系统就不会出问题了呢？这个不能有肯定的答案，在某些情况下，异常需要深入分析 Root Cause ，从根源来解决 BUG 的出现点，而不是简单的捕获到异常。</p>
+<p>在 Native 层的 Crash ,通常是由于进程收到 signal 信号而引发的崩溃，当进程收到信号，并会触发处理函数，通过 Socket 发送信息到 debuggerd 进程，debuggerd 进程收到时间后通过 ptrace attach 到目标进程，获取 cpu/memory/trace 等关键信息后 dettach . Native Crash 情况比较多，发生较多的是 SIGSEGV 段错误异常，往往是内存出现异常，比如无法访问权限不足的内存地址。</p>
+<p>对于 Kernel Crash，难分析，很多时候是由硬件导致。例如 CPU、驱动等问题……</p>
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="# 参考资料"></a># 参考资料</h4><p>Gityuan博客：<a href="http://gityuan.com" target="_blank" rel="noopener">http://gityuan.com</a></p>
+<p>《Android 高级进阶》</p>
+<p>很多内容参考借鉴上述地方资料，主要作为技术笔记和总结的存在</p>
+<p>特此感谢上述两部分资料的作者</p>
+</div><div class="tags"><a href="/tags/Android/"><i class="fa fa-tag"></i>Android</a><a href="/tags/Stability/"><i class="fa fa-tag"></i>Stability</a></div><div class="post-nav"><a class="pre" href="/2018/01/02/Java_BasicKnowledge/">Java 基础知识点梳理</a><a class="next" href="/2017/11/05/android_view/">View 的事件体系及工作原理</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"/><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Android/">Android</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Emotion/">Emotion</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technology/">Technology</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Translate/">Translate</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/diary/" style="font-size: 15px;">diary</a> <a href="/tags/android/" style="font-size: 15px;">android</a> <a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/Android/" style="font-size: 15px;">Android</a> <a href="/tags/MVC/" style="font-size: 15px;">MVC</a> <a href="/tags/MVP/" style="font-size: 15px;">MVP</a> <a href="/tags/Alpha-beta/" style="font-size: 15px;">Alpha-beta</a> <a href="/tags/Activity/" style="font-size: 15px;">Activity</a> <a href="/tags/Stability/" style="font-size: 15px;">Stability</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" style="font-size: 15px;">系统启动流程</a> <a href="/tags/View/" style="font-size: 15px;">View</a> <a href="/tags/RxJava/" style="font-size: 15px;">RxJava</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/Flutter/" style="font-size: 15px;">Flutter</a> <a href="/tags/PHP/" style="font-size: 15px;">PHP</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 15px;">正则表达式</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/07/flutter-5-reasons-why-you-may-love-it/">Flutter — 五个你会爱上它的原因</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/confusion-subject-observable-observer-android-rxjava2-hell-part8/">Subject 和 Observable + Observer 的混淆指北[ Android RxJava2 ] ( 这什么鬼系列 ) 第八话</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/10/Java_JVM_classloader/">Java 虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/05/Java_reference/">Java 引用类型分析与总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/04/Java_input_output_stream/">Java 输入输出流</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/03/Java_data%20structure_Hashmap/">Java 数据结构实现原理之 HashMap</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/21/Java_data%20structure_ArrayList/">Java 数据结构实现原理之 ArrayList</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/02/Java_BasicKnowledge/">Java 基础知识点梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/android_stability/">Android 系统稳定性问题相关梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/05/android_view/">View 的事件体系及工作原理</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">whiplashz.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.jsdelivr.net/gh/fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox/dist/jquery.fancybox.min.css"><link rel="stylesheet" type="text/css" href="/css/search.css?v=0.0.0"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" src="/js/copycode.js" successtext="复制成功!"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

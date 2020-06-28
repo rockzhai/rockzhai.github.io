@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title>Java 基础知识点梳理 | whiplashz</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/normalize.css/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/purecss/build/pure-min.min.css"><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="//cdn.jsdelivr.net/npm/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="//cdn.jsdelivr.net/gh/codeseven/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="//cdn.jsdelivr.net/gh/codeseven/toastr/build/toastr.min.css"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Java 基础知识点梳理</h1><a id="logo" href="/.">whiplashz</a><p class="description">今番良晤，豪兴不浅</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Java 基础知识点梳理</h1><div class="post-meta">2018-01-02<span> | </span><span class="category"><a href="/categories/Java/">Java</a></span></div><div class="clear"><div class="toc-article" id="toc"><div class="toc-title">文章目录</div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#知识框图"><span class="toc-number">1.</span> <span class="toc-text">知识框图</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#面向对象六大原则"><span class="toc-number">1.0.1.</span> <span class="toc-text">面向对象六大原则</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Java-中的-23-中设计模式"><span class="toc-number">1.0.2.</span> <span class="toc-text">Java 中的 23 中设计模式</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#应用程序开发"><span class="toc-number">1.1.</span> <span class="toc-text">应用程序开发</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#反射"><span class="toc-number">1.1.1.</span> <span class="toc-text">反射</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#泛型"><span class="toc-number">1.1.2.</span> <span class="toc-text">泛型</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#枚举"><span class="toc-number">1.1.3.</span> <span class="toc-text">枚举</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#可变参数"><span class="toc-number">1.1.4.</span> <span class="toc-text">可变参数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Lambda-表达式"><span class="toc-number">1.1.5.</span> <span class="toc-text">Lambda 表达式</span></a></li></ol></li></ol></li></ol></div></div><div class="post-content"><h3 id="知识框图"><a href="#知识框图" class="headerlink" title="知识框图"></a>知识框图</h3><p><img src="../img/Java/Java_map.png" alt="Java_map"></p>
+<p>​                                         图 1  Java 知识框图</p>
+<p>（画的图稍有些宽，Markdown 编辑器按比例压缩了，图片均放在同级 img 目录下）</p>
+<p>###Java 基础 和 面向对象</p>
+<p>#####跨平台性</p>
+<p>Java 是一门跨平台的语言，它的跨平台性主要体现在 JVM 的设计上，由于 JVM 的存在，使得 Java 成为了一门跨平台的语言。</p>
+<p>在整个 Java SE 的知识体系中，基础板块包括数据类型、运算符、流程控制、数组等内容；</p>
+<p>#####面向对象基本概念</p>
+<p>面向对象是整个 Java 中最为核心的一个思想，面向对象的存在是相对于面向过程而言，面向过程主要侧重的是<strong>功能的行为</strong>，或者说是执行该功能的对象，而面向对象侧重的是具备<strong>该功能的对象</strong>， 面向对象更加强调人和对象在日常行为中采用的思维和法则，如：抽象、封装、聚合、多态等。很多事物都可以抽象成对象，汽车、冰箱和人自己，世间万物皆对象。</p>
+<p>对象中包含自身的属性和方法（即功能），可以实现某些接口和继承某个可继承的类（例如被 final 修饰的类就不可被继承），面向对象有三大特性，即：封装、继承和多态，<strong>封装性</strong>是一种对数据进行保护的设计，将属性和数据进行私有化，仅对想暴露的（通过访问修饰符：default（缺省）、public（All 类）、private（该类）、protected（同一 package））类或对象访问，封装对内部的数据进行了不同级别的访问限制，而<strong>继承</strong>其实是打破封装性的一种做法，通过继承的方式获取到父类（或者说基类）的功能和属性，继承中由于单继承的不够方便实用，而尽少的减少对封装性的打破而引入了<strong>接口</strong>，接口是对单继承的一个补充，即单继承多实现的开发模式。Java 的第三个特性是<strong>多态</strong>，是指一个类中的相同方法的不同表现形式，多态可以让具有不能内部构造的对象可以享用相同的外部接口，例如常见的 System.out.println(XXX) 方法，多态是程序扩展性的一种延伸。</p>
+<a id="more"></a>
+
+<p><strong>Java 中设计模式</strong>分为三大类：</p>
+<ul>
+<li>创建型模式（5 种）：工厂方法模式、抽象工厂模式、单例模式、建造者模式、原型模式</li>
+<li>结构型模式（7 种）：适配器模式、装饰器模式、代理模式、外观模式、桥接模式、组合模式、享元模式</li>
+<li>行为型模式（11 种）：策略模式、模板方法模式、观察者模式、迭代子模式、责任链模式、命令模式、备忘录模式、状态模式、访问者模式、中介者模式、解释器模式</li>
+<li>除上述 23 种外还有两类：并发型模式和线程池模式</li>
+</ul>
+<h5 id="面向对象六大原则"><a href="#面向对象六大原则" class="headerlink" title="面向对象六大原则"></a>面向对象六大原则</h5><p><strong>1. 开闭原则（Open Close Principle）</strong></p>
+<p>对拓展开放，对修改关闭。在程序需要修改时，不能去修改原有的代码，实现一个热插拔的效果。为了使程序的扩展性好，易于维护和升级，想要达到想要的效果，设计中需要使用接口和抽象类。</p>
+<p><strong>2. 里氏代换原则（Liskov Substitution Principle）</strong></p>
+<ul>
+<li>任何基类出现的地方，子类一定可以出现</li>
+<li>LSP （该原则简称） 是继承复用的基石，只有当衍生类可以替换掉基类，软件单位功能不受影响，基类才能真正被复用，而衍生类也能够在基类的基础上增加新的行为</li>
+<li>LSP 是对开闭原则的补充，实现开闭原则的关键步骤是抽象化，而基类和子类的继承关系就是抽象化的具体实现，所以里氏替换原则是对实现抽象化的具体步骤的规范</li>
+</ul>
+<p><strong>3. 依赖倒转原则（Dependence Inversion Principle）</strong></p>
+<p>开闭原则的基础，对接口编程，依赖于抽象而不依赖于具体</p>
+<p><strong>4. 接口隔离原则（Interface Segregation Principle）</strong></p>
+<p>使用多个隔离的接口，比使用单个接口要好，降低类之间的耦合与依赖</p>
+<p><strong>5. 迪米特法则（最少知道原则）（Demeter Principle）</strong></p>
+<p>一个实体应当尽量少的与其他实体之间发生相互作用，使得系统童年模块相对独立</p>
+<p><strong>6. 合成复用原则（Composite Reuse Principle）</strong></p>
+<p>尽量使用合成/聚合的方式，而不是使用继承。</p>
+<h5 id="Java-中的-23-中设计模式"><a href="#Java-中的-23-中设计模式" class="headerlink" title="Java 中的 23 中设计模式"></a>Java 中的 23 中设计模式</h5><p>初步通读一下 23 种设计模式，详细了解并记录部分常用内容。</p>
+<p>根据网上例子挑选常用设计模式进行总结和 Demo 输出。</p>
+<p><a href="http://blog.csdn.net/lmj623565791/article/category/2206597" target="_blank" rel="noopener">http://blog.csdn.net/lmj623565791/article/category/2206597</a></p>
+<h4 id="应用程序开发"><a href="#应用程序开发" class="headerlink" title="应用程序开发"></a>应用程序开发</h4><p>JDBC 是 Java 的数据库连接，一种标准的 Java API ，用于连接 Java 语言和数据库 ，多应用于 Java EE 方向和桌面应用开发。</p>
+<p>集合框架和数据结构暂不做总结，于 Java 数据结构及其原理解析 中总结，多线程、网络亦同，另一文档总结。</p>
+<h5 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h5><ul>
+<li>使用： 通过反射，可以在运行时获得程序或程序集中每一个类型的成员和成员信息、</li>
+</ul>
+<p>在 Java 中，一般的对象类型均为在编译期确定，而 Java 反射机制可以动态的创建对象并调用其属性，这样的对象类型在编译期也是未知的，所以可以通过反射机制直接创建对象，即使这个对象的类型在编译期是未知的。</p>
+<ul>
+<li>核心：在 JVM 运行时去动态加载类、调用方法或者访问属性，不需要实现（在编程或者编译时）明确对象是谁</li>
+<li>功能<ul>
+<li>1.在运行时判断任意一个对象所属的类；</li>
+<li>2.在运行时构造任意一个类的对象；</li>
+<li>3.在运行时判断任意一个类所具有的成员变量和方法（通过反射甚至可以调用 private 方法）；</li>
+<li>4.在运行时调用任意一个对象的方法</li>
+</ul>
+</li>
+<li>重点：运行时而不是编译时</li>
+</ul>
+<p><strong>反射主要用途</strong></p>
+<ul>
+<li>通用框架开发（例如 Spring ）均是配置化的，即通过 XML 文件配置 JavaBean、Action 之类，为保证通用性，可能需要根据配置文件加载不同的对象或者类，调用不同的方法，这时候就必须用到反射，在运行的时候动态加载所需要加载的对象。</li>
+<li>IDE （如 Eclipse 、IDEA 等）中的代码提示，需要的也是反射。</li>
+</ul>
+<p><strong>反射基本使用</strong></p>
+<ol>
+<li><p>获取 Class 对象并调用方法</p>
+<ul>
+<li>使用 Class 类的 forName 静态方法</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Class&lt;?&gt; forName(String className)</span><br><span class="line">Class.forName(driver);</span><br></pre></td></tr></table></figure>
+
+<p>在JDBC开发中常用此方法加载数据库驱动。</p>
+<ul>
+<li>直接获取一个对象的 class </li>
+<li>调用某个对象的 getClass 方法</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; klass = <span class="keyword">int</span><span class="class">.<span class="keyword">class</span></span>;</span><br><span class="line">Class&lt;?&gt; classInt = Integer.TYPE;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反射使用示例</span></span><br><span class="line">	Class&lt;?&gt; clz = Class.forName(<span class="string">"android.telephony.FtTelephonyAdapter"</span>);</span><br><span class="line">       <span class="keyword">if</span> (clz == <span class="keyword">null</span>) &#123;</span><br><span class="line">              <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        method = clz.getMethod(<span class="string">"getXXX"</span>, Context<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        <span class="keyword">if</span> (method == <span class="keyword">null</span>) &#123;</span><br><span class="line">             <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">         &#125;</span><br><span class="line">         Object XXX = method.invoke(<span class="keyword">null</span>, context);</span><br><span class="line">         <span class="keyword">if</span> (FtTelephony != <span class="keyword">null</span>) &#123;</span><br><span class="line">           <span class="keyword">return</span> (String) 						FtTelephony.getClass().getMethod(<span class="string">"getImei"</span>,<span class="keyword">int</span><span class="class">.<span class="keyword">class</span>).<span class="title">invoke</span>(<span class="title">FtTelephony</span>, 0)</span>;</span><br><span class="line">         &#125;</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+<li><p>判断是否为某个类的实例</p>
+<p>一般的会用到 instanceof 关键字来判断是否为某类的实例，但同时也可以借助反射中 Class 对象的 isInstance() 方法来判断是否为某各类的实例，它是一个 Native 方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">boolean</span> <span class="title">isInstance</span><span class="params">(Object obj)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>反射可以创建实例、获取构造器信息、获取类的成员变量（字段信息）、调用方法、利用反射创建数组等，但是具体使用场景暂时没有想法和使用经验，仅作了了解。</p>
+</li>
+<li><p>由于反射会额外消耗一定的系统资源，因此如果不需要动态地创建一个对象，那就不用反射，另外反射调用方法可以忽略权限检查，因此可能会破坏封装性而导致安全问题。</p>
+</li>
+</ol>
+<h5 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h5><p>JDK 5 引入的一个新特性，所以可以划分到新特性类别下，目前已经是 JDK 8，所以亦可放到应用程序开发下，因为在很多开发中会用到泛型。</p>
+<p>泛型提供了编译时类型安全检测机制，该机制允许程序员在编译时检测到非法的类型。</p>
+<p>本质是参数化类型，即所操作的数据类型被指定为一个参数。</p>
+<blockquote>
+<p>假设需求：排序方法，能对整形数组、字符串甚至其他类型数组进行排序，如何实现？</p>
+</blockquote>
+<blockquote>
+<p>答案：可以使用 Java 泛型</p>
+<p>利用泛型的概念，我们可以使用一个泛型方法来对一个对象数组排序，然后调用该方法对整形数组、浮点数数组、字符串数组进行排序。</p>
+</blockquote>
+<p>示例小程序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GenericMethodTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span>  <span class="title">main</span><span class="params">( String args[])</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 创建不同类型数组： Integer, Double 和 Character</span></span><br><span class="line">        Integer[] intArray = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span> &#125;;</span><br><span class="line">        Double[] doubleArray = &#123; <span class="number">1.1</span>, <span class="number">2.2</span>, <span class="number">3.3</span>, <span class="number">4.4</span> &#125;;</span><br><span class="line">        Character[] charArray = &#123; <span class="string">'H'</span>, <span class="string">'E'</span>, <span class="string">'L'</span>, <span class="string">'L'</span>, <span class="string">'O'</span> &#125;;</span><br><span class="line"></span><br><span class="line">        System.out.println( <span class="string">"整型数组元素为:"</span> );</span><br><span class="line">        printArray( intArray  );</span><br><span class="line">        </span><br><span class="line">        System.out.println( <span class="string">"\n双精度型数组元素为:"</span> );</span><br><span class="line">        printArray( doubleArray );</span><br><span class="line"></span><br><span class="line">        System.out.println( <span class="string">"\n字符型数组元素为:"</span> );</span><br><span class="line">        printArray( charArray );</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 每个泛型方法需要在返回值类型有一个参数类型声明，用尖括号分隔，如以下中的 E</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;E&gt; <span class="function"><span class="keyword">void</span>  <span class="title">printArray</span><span class="params">(E[] inputArray)</span></span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (E element : inputArray)&#123;</span><br><span class="line">            System.out.print(element);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>泛型中可以通过声明<strong>有界的类型参数</strong>，格式为：类型参数名称 + extends 关键字 +上界</p>
+<p>例如下面的方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 比较三个值并返回最大值</span></span><br><span class="line"> <span class="keyword">public</span> <span class="keyword">static</span> &lt;T extends Comparable&lt;T&gt;&gt; <span class="function">T <span class="title">maximum</span><span class="params">(T x, T y, T z)</span> </span>&#123;             T max = x; <span class="comment">// 假设x是初始最大值</span></span><br><span class="line">    <span class="keyword">if</span> ( y.compareTo( max ) &gt; <span class="number">0</span> ) &#123;</span><br><span class="line">       max = y; <span class="comment">//y 更大</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( z.compareTo( max ) &gt; <span class="number">0</span> ) &#123;</span><br><span class="line">       max = z; <span class="comment">// 现在 z 更大           </span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> max; <span class="comment">// 返回最大对象</span></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Comparable 是排序结构，若一个类实现该接口即表明 “ 该类支持排序 ”，实现该接口的列表（ List ）或者数组，可以直接通过 Collections.sort （或 Arrays.sort ) 进行排序</p>
+<p>另，实现 Comparable 接口的对象可以用作 “有序映射，如 TreeMap ”中的健或 ”有序集合 TreeSet “ 中的元素，而不需要指定比较器。</p>
+</blockquote>
+<p><strong>泛型类</strong></p>
+<p>泛型类的声明和非泛型类声明类似，除了在类名后面添加了类型参数声明部分。</p>
+<p>和泛型方法类似，泛型类的参数声明也包含一个或者多个类型参数，参数间用逗号隔开。一个泛型参数，也称为一个类型变量，是用于指定一个泛型类型名称的标识符，因为他们接受一个或多个参数，这些类被称为参数化类或参数化类型。</p>
+<p>示例小程序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Box</span>&lt;<span class="title">T</span>&gt; </span>&#123; </span><br><span class="line">  <span class="keyword">private</span> T t;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.t = t;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> T <span class="title">get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> t;</span><br><span class="line">  &#125; </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Box&lt;Integer&gt; integerBox = <span class="keyword">new</span> Box&lt;Integer&gt;();</span><br><span class="line">    Box&lt;String&gt; stringBox = <span class="keyword">new</span> Box&lt;String&gt;();</span><br><span class="line">    integerBox.add(<span class="keyword">new</span> Integer(<span class="number">10</span>));</span><br><span class="line">    stringBox.add(<span class="keyword">new</span> String(<span class="string">"字符串类型"</span>)); </span><br><span class="line">    System.out.printf(<span class="string">"整型值为 :%d\n\n"</span>, integerBox.get());</span><br><span class="line">    System.out.printf(<span class="string">"字符串为 :%s\n"</span>, stringBox.get());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>类型通配符</strong></p>
+<p>一般为使用 ？ 代替具体的类型参数，例如 List&lt;?&gt; 在逻辑上可以是 List<String> ,List<Integer> 等任何一种 List&lt;具体实参&gt; 类型的父类</p>
+<p>示例小程序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GenericTest</span> </span>&#123;    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        List&lt;String&gt; name = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line">        List&lt;Integer&gt; age = <span class="keyword">new</span> ArrayList&lt;Integer&gt;();</span><br><span class="line">        List&lt;Number&gt; number = <span class="keyword">new</span> ArrayList&lt;Number&gt;();</span><br><span class="line">        </span><br><span class="line">        name.add(<span class="string">"icon"</span>);</span><br><span class="line">        age.add(<span class="number">18</span>);</span><br><span class="line">        number.add(<span class="number">314</span>);</span><br><span class="line"> </span><br><span class="line">        getData(name);</span><br><span class="line">        getData(age);</span><br><span class="line">        getData(number);       </span><br><span class="line">   &#125;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">getData</span><span class="params">(List&lt;?&gt; data)</span> </span>&#123;</span><br><span class="line">      System.out.println(<span class="string">"data :"</span> + data.get(<span class="number">0</span>));</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>getData() 方法的参数是List类型的，所以 name，age，number 都可以作为这个方法的实参，这就是通配符的作用,输出结果是：data :icon data :18 data :314 。</p>
+<p>类型通配符也可以定义<strong>上限</strong>，形如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;? extends Number&gt; data</span><br></pre></td></tr></table></figure>
+
+<p>此种情况下如果仍旧使用 String 类型或者其他的去调用，会出现错误</p>
+<p>类型通配符也可以定义<strong>下限</strong>，形如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;? <span class="keyword">super</span> Number&gt;</span><br></pre></td></tr></table></figure>
+
+<p>表示类型只能接受 Number 及三层父类类型，如果 Object 的实例。</p>
+<p><strong>小结</strong></p>
+<p>extends 定义该通配符所代表的类型是 T 类型的子类。</p>
+<p>super 定义该通配符是所代表类型是 T 类型的父类。</p>
+<h5 id="枚举"><a href="#枚举" class="headerlink" title="枚举"></a>枚举</h5><p>枚举是 Java 5 中加入的特性，特殊的数据类型，是一种类 class ，又比 class 多了特殊的约束，这些约束造就了枚举类型的简洁性、安全性以及便捷性。</p>
+<p>枚举类型是一种特殊数据类型，能够为一个变量定义一组预定义的常量。变量必须等于为其预定义的值之一。</p>
+<p>枚举是特殊的类，可以拥有成员变量和方法。</p>
+<p>枚举可以结合很多其他的东西使用，例如多态、泛型和反射。</p>
+<h5 id="可变参数"><a href="#可变参数" class="headerlink" title="可变参数"></a>可变参数</h5><p>使用 … 表示可变长参数，如：</p>
+<p>print(String… args){</p>
+<p>   …</p>
+<p>}</p>
+<p>在具有可变长参数的方法中可以把参数当成数组使用，例如可以循环输出所有的参数值。</p>
+<p>print(String… args){</p>
+<p>   for(String temp:args)</p>
+<p>​      System.out.println(temp);</p>
+<p>}</p>
+<p>并没有怎么用到过这个东西，所以暂时没有深入去看。</p>
+<h5 id="Lambda-表达式"><a href="#Lambda-表达式" class="headerlink" title="Lambda 表达式"></a>Lambda 表达式</h5><p>Lambda 表达式是 Java 8 中引入的一种新语法，名字起源于学术界的 λ 演算（具体是什么演算暂时也没查 =-=..）。</p>
+<p>Java 8 中引如了 Lambda 表达式和 ” 流 ”，即一种函数式的数据处理，组合式的异步编程（CompletableFuture )以及新的日期和时间 API</p>
+<p>Lambda 表达式是一种紧凑的代码传递方式。</p>
+<p>参考资料：<a href="https://juejin.im/post/595ce8de5188250d892f68fb" target="_blank" rel="noopener">https://juejin.im/post/595ce8de5188250d892f68fb</a></p>
+</div><div class="tags"><a href="/tags/Java/"><i class="fa fa-tag"></i>Java</a></div><div class="post-nav"><a class="pre" href="/2018/01/21/Java_data%20structure_ArrayList/">Java 数据结构实现原理之 ArrayList</a><a class="next" href="/2017/11/17/android_stability/">Android 系统稳定性问题相关梳理</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"/><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Android/">Android</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Emotion/">Emotion</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technology/">Technology</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Translate/">Translate</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/diary/" style="font-size: 15px;">diary</a> <a href="/tags/android/" style="font-size: 15px;">android</a> <a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/Android/" style="font-size: 15px;">Android</a> <a href="/tags/MVC/" style="font-size: 15px;">MVC</a> <a href="/tags/MVP/" style="font-size: 15px;">MVP</a> <a href="/tags/Alpha-beta/" style="font-size: 15px;">Alpha-beta</a> <a href="/tags/Activity/" style="font-size: 15px;">Activity</a> <a href="/tags/Stability/" style="font-size: 15px;">Stability</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" style="font-size: 15px;">系统启动流程</a> <a href="/tags/View/" style="font-size: 15px;">View</a> <a href="/tags/RxJava/" style="font-size: 15px;">RxJava</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/Flutter/" style="font-size: 15px;">Flutter</a> <a href="/tags/PHP/" style="font-size: 15px;">PHP</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 15px;">正则表达式</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/07/flutter-5-reasons-why-you-may-love-it/">Flutter — 五个你会爱上它的原因</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/confusion-subject-observable-observer-android-rxjava2-hell-part8/">Subject 和 Observable + Observer 的混淆指北[ Android RxJava2 ] ( 这什么鬼系列 ) 第八话</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/10/Java_JVM_classloader/">Java 虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/05/Java_reference/">Java 引用类型分析与总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/04/Java_input_output_stream/">Java 输入输出流</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/03/Java_data%20structure_Hashmap/">Java 数据结构实现原理之 HashMap</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/21/Java_data%20structure_ArrayList/">Java 数据结构实现原理之 ArrayList</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/02/Java_BasicKnowledge/">Java 基础知识点梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/android_stability/">Android 系统稳定性问题相关梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/05/android_view/">View 的事件体系及工作原理</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">whiplashz.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.jsdelivr.net/gh/fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox/dist/jquery.fancybox.min.css"><link rel="stylesheet" type="text/css" href="/css/search.css?v=0.0.0"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" src="/js/copycode.js" successtext="复制成功!"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

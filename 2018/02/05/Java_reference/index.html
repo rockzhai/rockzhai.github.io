@@ -1,0 +1,83 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title>Java 引用类型分析与总结 | whiplashz</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/normalize.css/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/purecss/build/pure-min.min.css"><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="//cdn.jsdelivr.net/npm/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="//cdn.jsdelivr.net/gh/codeseven/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="//cdn.jsdelivr.net/gh/codeseven/toastr/build/toastr.min.css"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Java 引用类型分析与总结</h1><a id="logo" href="/.">whiplashz</a><p class="description">今番良晤，豪兴不浅</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Java 引用类型分析与总结</h1><div class="post-meta">2018-02-05<span> | </span><span class="category"><a href="/categories/Java/">Java</a></span></div><div class="clear"><div class="toc-article" id="toc"><div class="toc-title">文章目录</div><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#强引用"><span class="toc-number">1.</span> <span class="toc-text">强引用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#软引用-SoftReference"><span class="toc-number">2.</span> <span class="toc-text">软引用 SoftReference</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#弱引用-WeakReference"><span class="toc-number">3.</span> <span class="toc-text">弱引用 WeakReference</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#虚引用-PhantomReference"><span class="toc-number">4.</span> <span class="toc-text">虚引用 PhantomReference</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="post-content"><p>Java 中提供了四种级别的引用类型，分别为：强引用、软引用、弱引用、虚引用，对应源码存在于 java.lang.ref 包下：</p>
+<p><img src="../img/Java/Java_ref.png" alt="Java_ref"></p>
+<p>该 package 下的类，为垃圾回收提供了更大的灵活性，在包下有三个继承自成抽象类 <code>Reference</code> 的类，它们分别给垃圾回收器（GC）给了不同级别的提示，使 GC 以不同的策略回收对象。</p>
+<h4 id="强引用"><a href="#强引用" class="headerlink" title="强引用"></a>强引用</h4><p>强引用是使用最普遍的引用，它是默认的引用类型，不需要显式声明，在 <code>java.lang.ref</code>中没有实际的类对应，可以把它理解为 Java 的内置省略默认引用类型。</p>
+<p>强引用是程序代码中普遍存在的，类似 Object obj = new Object() ，只要强引用还存在，垃圾收集器永远不会回收掉引用的对象，Java 虚拟机宁愿抛出 OutOfMemoryError 错误，使程序异常终止，也不会靠随意回收具有强引用的对象来解决内存不足的问题。</p>
+<p>强引用具备以下三个特点：</p>
+<ol>
+<li>强引用可以直接访问目标对象</li>
+<li>强引用所指向的对象任何时候都不会被系统回收</li>
+<li>强引用可以导致内存泄露</li>
+</ol>
+<a id="more"></a>
+
+<h4 id="软引用-SoftReference"><a href="#软引用-SoftReference" class="headerlink" title="软引用 SoftReference"></a>软引用 SoftReference</h4><p>只具有软引用的对象，GC 承诺在 JVM 内存充足的时候不回收对象。</p>
+<p> <em>软引用可以用来实现对内存敏感的高速缓存</em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String str=<span class="keyword">new</span> String(<span class="string">"abc"</span>);                                     <span class="comment">// 强引用  </span></span><br><span class="line">SoftReference&lt;String&gt; softRef=<span class="keyword">new</span> SoftReference&lt;String&gt;(str);     <span class="comment">// 软引用</span></span><br></pre></td></tr></table></figure>
+
+<p>软引用在实际中有重要的应用，例如浏览器的后退按钮，按后退时，这个后退时显示的网页内容是重新进行请求还是从缓存中取出呢？具体策略可用软引用设计为：</p>
+<p>（1）如果一个网页在浏览结束时就进行内容的回收，则按后退查看前面浏览过的页面时，需要重新构建</p>
+<p>（2）如果将浏览过的网页存储到内存中会造成内存的大量浪费，甚至会造成内存溢出</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Browser prev = <span class="keyword">new</span> Browser();               <span class="comment">// 获取页面进行浏览  </span></span><br><span class="line">SoftReference sr = <span class="keyword">new</span> SoftReference(prev); <span class="comment">// 浏览完毕后置为软引用         </span></span><br><span class="line"><span class="keyword">if</span>(sr.get()!=<span class="keyword">null</span>)&#123;   </span><br><span class="line">    rev = (Browser) sr.get();           <span class="comment">// 还没有被回收器回收，直接获取  </span></span><br><span class="line">&#125;<span class="keyword">else</span>&#123;  </span><br><span class="line">    prev = <span class="keyword">new</span> Browser();               <span class="comment">// 由于内存吃紧，所以对软引用的对象回收了  </span></span><br><span class="line">    sr = <span class="keyword">new</span> SoftReference(prev);       <span class="comment">// 重新构建  </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Notes：</p>
+<p>软引用可以和一个引用队列（ReferenceQueue）联合使用，如果软引用所引用的对象被垃圾回收器回收，Java 虚拟机就会把这个软引用加入到与之关联的引用队列中。</p>
+</blockquote>
+<h4 id="弱引用-WeakReference"><a href="#弱引用-WeakReference" class="headerlink" title="弱引用 WeakReference"></a>弱引用 WeakReference</h4><p>当内存空间充足时，软引用是不会被回收的，而弱引用比软引用更低一级，当垃圾回收器的线程扫描到它所管辖的内存区域，存在弱引用，便会回收，不管当前内存是否足够，不过 GC 是一个优先级很低的线程，因此也不一定会很快就回收。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String str=<span class="keyword">new</span> String(<span class="string">"abc"</span>);      </span><br><span class="line">WeakReference&lt;String&gt; abcWeakRef = <span class="keyword">new</span> WeakReference&lt;String&gt;(str);  </span><br><span class="line">str=<span class="keyword">null</span>;</span><br></pre></td></tr></table></figure>
+
+<p>当垃圾回收器进行扫描回收时等价于：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">str = <span class="keyword">null</span>;  </span><br><span class="line">System.gc();</span><br></pre></td></tr></table></figure>
+
+<p>如果这个对象是偶尔的使用，并且希望在使用时随时就能获取到，但又不想影响此对象的垃圾收集，那么可以采用 Weak Reference 来记住此对象。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将弱引用变为强引用</span></span><br><span class="line">String  abc = abcWeakRef.get();</span><br></pre></td></tr></table></figure>
+
+<p>弱引用可以和一个引用队列（ReferenceQueue）联合使用，如果弱引用所引用的对象被垃圾回收，JVM 会把这个弱引用加入到与之关联的引用队列中。</p>
+<p><em>当你想引用一个对象，但是这个对象有自己的生命周期，你不想介入这个对象的生命周期，这时候使用弱引用</em></p>
+<p>这个引用不会在对象的垃圾回收判断中产生任何附加的影响。</p>
+<h4 id="虚引用-PhantomReference"><a href="#虚引用-PhantomReference" class="headerlink" title="虚引用 PhantomReference"></a>虚引用 PhantomReference</h4><p>“虚引用”顾名思义，就是形同虚设，与其他几种引用都不同，虚引用并不会决定对象的生命周期。如果一个对象仅持有虚引用，那么它就和没有任何引用一样，在任何时候都可能被垃圾回收器回收。</p>
+<p>虚引用主要用来跟踪对象被垃圾回收器回收的活动。虚引用与软引用和弱引用的一个区别在于：虚引用必须和引用队列 （ReferenceQueue）联合使用。当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之 关联的引用队列中。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>Java 4 种引用的级别由高到低依次为：</p>
+<p>强引用  &gt;  软引用  &gt;  弱引用  &gt;  虚引用</p>
+<table>
+<thead>
+<tr>
+<th>引用类型</th>
+<th>被垃圾回收时间</th>
+<th>用途</th>
+<th>生存时间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>强引用</td>
+<td>从来不会</td>
+<td>对象的一般状态</td>
+<td>JVM 停止运行时终止</td>
+</tr>
+<tr>
+<td>软引用</td>
+<td>在内存不足时</td>
+<td>对象缓存</td>
+<td>内存不足时终止</td>
+</tr>
+<tr>
+<td>弱引用</td>
+<td>在垃圾回收时</td>
+<td>对象缓存</td>
+<td>gc 运行后终止</td>
+</tr>
+<tr>
+<td>虚引用</td>
+<td>Unknown</td>
+<td>Unknown</td>
+<td>Unknown</td>
+</tr>
+</tbody></table>
+</div><div class="tags"><a href="/tags/Java/"><i class="fa fa-tag"></i>Java</a></div><div class="post-nav"><a class="pre" href="/2018/02/10/Java_JVM_classloader/">Java 虚拟机类加载机制</a><a class="next" href="/2018/02/04/Java_input_output_stream/">Java 输入输出流</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"/><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Android/">Android</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Emotion/">Emotion</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technology/">Technology</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Translate/">Translate</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/diary/" style="font-size: 15px;">diary</a> <a href="/tags/android/" style="font-size: 15px;">android</a> <a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/Android/" style="font-size: 15px;">Android</a> <a href="/tags/MVC/" style="font-size: 15px;">MVC</a> <a href="/tags/MVP/" style="font-size: 15px;">MVP</a> <a href="/tags/Alpha-beta/" style="font-size: 15px;">Alpha-beta</a> <a href="/tags/Activity/" style="font-size: 15px;">Activity</a> <a href="/tags/Stability/" style="font-size: 15px;">Stability</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" style="font-size: 15px;">系统启动流程</a> <a href="/tags/View/" style="font-size: 15px;">View</a> <a href="/tags/RxJava/" style="font-size: 15px;">RxJava</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/Flutter/" style="font-size: 15px;">Flutter</a> <a href="/tags/PHP/" style="font-size: 15px;">PHP</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 15px;">正则表达式</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/07/flutter-5-reasons-why-you-may-love-it/">Flutter — 五个你会爱上它的原因</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/confusion-subject-observable-observer-android-rxjava2-hell-part8/">Subject 和 Observable + Observer 的混淆指北[ Android RxJava2 ] ( 这什么鬼系列 ) 第八话</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/10/Java_JVM_classloader/">Java 虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/05/Java_reference/">Java 引用类型分析与总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/04/Java_input_output_stream/">Java 输入输出流</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/03/Java_data%20structure_Hashmap/">Java 数据结构实现原理之 HashMap</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/21/Java_data%20structure_ArrayList/">Java 数据结构实现原理之 ArrayList</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/02/Java_BasicKnowledge/">Java 基础知识点梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/android_stability/">Android 系统稳定性问题相关梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/05/android_view/">View 的事件体系及工作原理</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">whiplashz.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.jsdelivr.net/gh/fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox/dist/jquery.fancybox.min.css"><link rel="stylesheet" type="text/css" href="/css/search.css?v=0.0.0"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" src="/js/copycode.js" successtext="复制成功!"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

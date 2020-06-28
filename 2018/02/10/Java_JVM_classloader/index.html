@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title>Java 虚拟机类加载机制 | whiplashz</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/normalize.css/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/purecss/build/pure-min.min.css"><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="//cdn.jsdelivr.net/npm/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="//cdn.jsdelivr.net/gh/codeseven/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="//cdn.jsdelivr.net/gh/codeseven/toastr/build/toastr.min.css"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Java 虚拟机类加载机制</h1><a id="logo" href="/.">whiplashz</a><p class="description">今番良晤，豪兴不浅</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Java 虚拟机类加载机制</h1><div class="post-meta">2018-02-10<span> | </span><span class="category"><a href="/categories/Java/">Java</a></span></div><div class="clear"><div class="toc-article" id="toc"><div class="toc-title">文章目录</div><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#基础知识"><span class="toc-number">1.</span> <span class="toc-text">基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#运行时数据区"><span class="toc-number">1.1.</span> <span class="toc-text">运行时数据区</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Java-中的绑定"><span class="toc-number">1.2.</span> <span class="toc-text">Java 中的绑定</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#类加载过程"><span class="toc-number">2.</span> <span class="toc-text">类加载过程</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#加载"><span class="toc-number">2.1.</span> <span class="toc-text">加载</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#双亲委派模型"><span class="toc-number">2.1.1.</span> <span class="toc-text">双亲委派模型</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#验证"><span class="toc-number">2.2.</span> <span class="toc-text">验证</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#准备"><span class="toc-number">2.3.</span> <span class="toc-text">准备</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#解析"><span class="toc-number">2.4.</span> <span class="toc-text">解析</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#初始化"><span class="toc-number">2.5.</span> <span class="toc-text">初始化</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#使用与卸载"><span class="toc-number">3.</span> <span class="toc-text">使用与卸载</span></a></li></ol></div></div><div class="post-content"><h4 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h4><h5 id="运行时数据区"><a href="#运行时数据区" class="headerlink" title="运行时数据区"></a>运行时数据区</h5><ul>
+<li>静态存储区（方法区）：程序运行期间均存在，主要用于存放静态数据、常量和方法、类</li>
+<li>栈区：当方法执行时，在栈区内存中创建方法的局部变量，方法结束后自动释放变量占用的内存</li>
+<li>堆区：存放 new 出来的对象，由 Java 垃圾回收器进行回收</li>
+</ul>
+<p><img src="../img/Java/Java_data_memory.png" alt="Java_Memory"></p>
+<h5 id="Java-中的绑定"><a href="#Java-中的绑定" class="headerlink" title="Java 中的绑定"></a>Java 中的绑定</h5><p>通常把一个方法的调用与方法的类（方法主体）关联起来，称为绑定，绑定又分为静态绑定和动态绑定。</p>
+<ul>
+<li>静态绑定：前期绑定，在程序执行前就已经绑定，由编译器（或具有相似功能的编译工具）实现，针对 Java ，理解为程序编译期间的绑定，其中之后 final、static、private 和构造方法是前期绑定。</li>
+<li>动态绑定：晚期绑定、运行时绑定，在运行时根据具体对象的类型进行绑定，在 Java 中，几乎所有的方法都是后期绑定。</li>
+</ul>
+<a id="more"></a>
+
+<h4 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h4><p>一个类从加载到虚拟机开始，到卸载出内存，整个生命周期包括：<strong>加载、验证、准备、解析、初始化、使用、卸载</strong>七个阶段。</p>
+<p>其中<strong>类的加载过程</strong>包含：加载、验证、准备、解析、初始化五个阶段。五个阶段中，加载、验证、准备和初始化的顺序是确定的，而解析时间则并不固定：</p>
+<blockquote>
+<ul>
+<li>解析可以在初始化之后开始，作用是为了支持 Java 语言中的运行时绑定（也称为动态绑定或晚期绑定）</li>
+<li>上述阶段是按照顺序<strong>开始</strong> ，不是按照顺序<strong>进行</strong>或<strong>完成</strong>，因为这些阶段通常是相互交叉混合进行，在一个阶段执行的过程中调用或激活另一阶段。</li>
+</ul>
+</blockquote>
+<p>所谓类加载，因为在编写 Java 程序之后，会通过编译器得到一个 class 文件，类加载所做的就是将描述类的数据从 class 文件中加载到内存里，并对数据进行校验、转换、解析和初始化，最终形成被虚拟机直接使用的 Java 类型。</p>
+<h5 id="加载"><a href="#加载" class="headerlink" title="加载"></a>加载</h5><p>加载为类加载过程的第一个阶段，在加载阶段，虚拟机主要工作：</p>
+<ol>
+<li>通过类全限定名获取其定义的二进制字节流</li>
+<li>将字节流所代表的静态存储结构转化为方法区的运行时数据结构</li>
+<li>在 Java 堆中生成一个代表这个类的<code>java.lang.Class</code> 对象，作为对方法去中这些数据的访问入口。</li>
+</ol>
+<p>第一步，通过一个类的全限定名来获取此类的二进制字节流，这里是各种 Java 技术能够实现的基础，这一步拥有很大的空间，比如可以通过 zip 包中获取，而后 jar 乃至网络都可以获取 applet 类，或者动态代理，运行时再生成特定的 class 二进制流，或者由其他文件生成，比如 JSP ，由 JSP 文件生成对应的 class 文件。</p>
+<p>所以，为什么会出现如此种类繁多的加载技术？原因是 Java 中通过一个类的全限定名来获取定义此类的二进制字节流这一动作放到 Java 虚拟机外部去实现，为了方便让应用自己去决定如何获取所需的类，实现这个动作的功能即常见的类加载器。</p>
+<p><strong>类加载器</strong> 功能为获取 class 文件，并且将其转换为 class 对象，因为 class 对象是由类加载器得到的，类加载器只用于实现类加载动作，但是在 Java 中由类加载器加载过的类，由类加载器来确定其在 Java 虚拟机中的唯一性，所以如果比较两个类是否相等，那么必须在同一个类加载器的前提下（equals、instanceOf 等判断）。</p>
+<p>JDK 中有着很多的类，程序开发又会新建许多自己编写的类，而这些并不是同一个类加载器加载的。</p>
+<p>从开发者的角度，Java 类加载器有以下几类：</p>
+<ul>
+<li><p>启动类加载器</p>
+<blockquote>
+<p>Bootstrap ClassLoader </p>
+<p>负责加载存放在 JDK\jre\lib ( JDK 代表 JDK 的安装目录，下同)、被 -Xbootclasspath 参数指定的路径中的，并且能被虚拟机识别的类库（如 rt.jar，所有的 java.* 开头的类均被 Bootstrap ClassLoader 加载）</p>
+<p>启动类加载器是无法被Java程序直接引用的。</p>
+</blockquote>
+</li>
+<li><p>扩展类加载器</p>
+<blockquote>
+<p>Extension ClassLoader</p>
+<p>该加载器由 sun.misc.Launcher$ExtClassLoader 实现，它负责加载 JDK\jre\lib\ext 目录中，或者由 java.ext.dirs 系统变量指定的路径中的所有类库（如 javax.* 开头的类）</p>
+<p>开发者可以直接使用扩展类加载器。</p>
+</blockquote>
+</li>
+<li><p>应用程序类加载器</p>
+<blockquote>
+<p>Application ClassLoader</p>
+<p>该类加载器由 sun.misc.Launcher$AppClassLoader 来实现，它负责加载用户类路径（ClassPath）所指定的类。</p>
+<p>开发者可以直接使用该类加载器。</p>
+<p>如果应用程序中没有自定义过自己的类加载器，一般情况会使用程序中默认的类加载器。</p>
+</blockquote>
+</li>
+</ul>
+<p>应用程序是由三种类加载器相互配合进行加载的，如果有必要，可以加入自定义的类加载器，因为JVM自带的ClassLoader只是懂得从本地文件系统加载标准的 Java class 文件，如果需要从网络或者数据库等地方加载，便需要自定义的类加载器。</p>
+<h6 id="双亲委派模型"><a href="#双亲委派模型" class="headerlink" title="双亲委派模型"></a>双亲委派模型</h6><p><img src="../img/Java/Java_bootloader.png" alt="bootloader"></p>
+<p><strong>双亲委派模型工作流程</strong></p>
+<p>如果一个类加载器收到了类加载的过程，首先不会去尝试加载这个类，而是把这个类委派给自己的父类加载器去完成，每个层次的加载器都是如此，因为所有类的加载请求都会最终传到顶层的启动类加载器中，只有父类加载器无法完成此加载请求时，子加载器才回去尝试自己加载。</p>
+<p><strong>设计目的</strong> 在于：保持类在整个 JVM 的唯一性，只有同一个类加载器加载出来的类才是相等的，如果写一个 Object 类，而不采用双亲委派模型去加载，那么会加载出很多不同的 Object 类。</p>
+<h5 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h5><p>验证的目的是为了确保Class文件中的字节流包含的信息符合当前虚拟机的要求，而且不会危害虚拟机自身的安全。不同虚拟机对<strong>验证</strong>的实现会有所不同，但是大致阶段为以下四个：</p>
+<ul>
+<li><p>文件格式验证：验证字节流是否符合 Class 文件格式的规范，并且能被当前虚拟机所处理，<strong>目的</strong>为保证输入的字节流能正确的解析并存储于方法区之内。</p>
+<p>有文件头、主次版本验证等等。</p>
+<p>经过该阶段的验证，字节流才会进入内存的方法区存储，而后的三个验证均为建立在该验证之上。</p>
+</li>
+<li><p>元数据验证：对类的元数据进行语义校验（对类中的个数据类型进行语法校验），保证不存在不符合 Java 语法规范的元数据信息。</p>
+<p>主要验证点：</p>
+<ul>
+<li>类是否有父类</li>
+<li>是否继承了不允许被继承的类（final修饰过的类）</li>
+<li>如果这个类不是抽象类，是否实现其父类或接口中所有要求实现的方法</li>
+<li>类中的字段、方法是否与父类产生矛盾（如：覆盖父类final类型的字段，或者不符合个则的方法）</li>
+</ul>
+</li>
+<li><p>字节码验证：进行数据量和控制流分析，对类的方法进行校验，确保程序语义是合法的，以保证被校验的类的方法在运行时不会做出危害虚拟机安全的行为。</p>
+</li>
+<li><p>符号引用验证：验证的最后一个阶段，发生在虚拟机将符号引用转化为直接引用时候（解析阶段中发生该转化），主要是对类自身以外的信息（常量池中的各种符号引用）进行匹配性校验。</p>
+<p>主要方面：</p>
+<ul>
+<li>符号引用中通过字符串描述的全限定名是否能找到对应的类。</li>
+<li>在指定类中是否存在符合方法的字段描述符以及简单名称所描述的方法和字段。</li>
+<li>符号引用中的类、字段、方法的访问性（private、protected、public、default）是否可被当前类访问。</li>
+</ul>
+</li>
+</ul>
+<h5 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h5><p>准备阶段是正式为类和变量分配内存并设置变量初始值的阶段，将会在内存的<strong>方法区</strong>中分配。</p>
+<p>例如：public <strong>static</strong> int value=123; 初始后为 value=0;</p>
+<p>​       对于static final类型，在准备阶段会被赋予正确的值</p>
+<p>​       public <strong>static final</strong> value=123; 初始化为 value=123;</p>
+<p>​       boolean 值默认为 false</p>
+<p>​       对象引用默认为 null ……</p>
+<blockquote>
+<p>Not而是：</p>
+<p><strong>该阶段只设置类中的静态变量（方法区中），不包括实例变量（堆内存中），实例变量是在对象实例化的时候初始化分配值的</strong></p>
+</blockquote>
+<h5 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h5><p>解析阶段是虚拟机将常量池内的符号引用替换为直接引用的过程。</p>
+<ol>
+<li><p>符号引用：简单的理解就是字符串，比如引用一个类，java.util.ArrayList 这就是一个符号引用，符号引用的对象不一定被加载。</p>
+<blockquote>
+<p>符号引用与虚拟机实现的布局无关，引用的目标并不一定要已经加载到内存中，各种虚拟机实现的内存布局可以各不相同，但是它们能接受的符号引用必须是一致的，因为符号引用的字面量形式明确定义在 Java 虚拟机规范的 Class 文件格式中。</p>
+</blockquote>
+</li>
+<li><p>直接引用：指针或者地址偏移量。引用对象一定在内存（已经加载）</p>
+<blockquote>
+<p>直接引用可以是指向目标的指针，相对偏移量或是一个能间接定位到目标的句柄。如果有了直接引用，那引用的目标必定已经在内存中存在。</p>
+</blockquote>
+</li>
+</ol>
+<p>对同一个符号引用进行多次解析请求时很常见的，虚拟机实现可能会对第一次解析的结果进行缓存（在运行时常量池中记录直接引用，并把常量标示为已解析状态），从而避免解析动作重复进行。</p>
+<p>解析动作主要针对类或接口、字段、类方法、接口方法四类符号引用进行，分别对应于常量池中一下四种常量类型：</p>
+<ul>
+<li>CONSTANT_Class_info</li>
+<li>CONSTANT_Fieldref_info</li>
+<li>CONSTANT_Methodref_info</li>
+<li>CONSTANT_InterfaceMethodref_info</li>
+</ul>
+<h5 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h5><p>上述过程，除了类加载阶段外，其余的均是由 JVM 主导，初始化阶段是真正执行类中定义的 Java 程序代码。</p>
+<p>在<strong>准备</strong>阶段，类变量已经被赋予过一次初始值，在初始化阶段，则是根据程序员指定的主观计划去初始化类变量和其他资源，从另一个角度来表达：初始化阶段是执行类构造器<code>&lt;clinit&gt;()</code> 方法的过程。<code>&lt;clinit&gt;()</code>  是由编译器自动收集类中类变量的赋值操作和静态语句合并而成，虚拟机保证 <code>&lt;clinit&gt;()</code> 方法执行之前，父类的 <code>&lt;clinit&gt;()</code> 已经执行完毕，如果一个类中没有静态变量赋值也没有静态语句块，编译器可以不为这个类生成 <code>&lt;clinit&gt;()</code>  方法。</p>
+<p><strong>以下情况不会进行类初始化：</strong></p>
+<ul>
+<li><p>通过子类引用父类的静态字段，只会触发父类的初始化，而不会触发子类的初始化</p>
+</li>
+<li><p>定义对象数组，不会触发该类的初始化</p>
+</li>
+<li><p>被动引用：</p>
+<ul>
+<li>常量在编译期间会存入调用类的常量池中，本质上并没有直接引用定义常量的类，不会触发定义该常量所在的类。</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>通过类名获取 Class 对象，不会触发该类的初始化</li>
+</ul>
+<ul>
+<li><p>通过 Class.forName 加载指定类时，如果指定参数 initialize 为 false，也不会触发类的初始化，该参数也是在告诉虚拟机，是否对类进行初始化。</p>
+</li>
+<li><p>通过 ClassLoader 默认的 loadClass 方法，也不会触发初始化动作。</p>
+</li>
+</ul>
+<h4 id="使用与卸载"><a href="#使用与卸载" class="headerlink" title="使用与卸载"></a>使用与卸载</h4><p>在执行完初始化操作后，类对象会被使用，即在程序中被引用之类操作，关于使用的内容多数是看开发人员如何设计，而卸载，则需要满足以下的条件：</p>
+<ol>
+<li>该类在堆中的所有实例都已经被回收，即在堆中不存在该类的实例对象。</li>
+<li>加载该类的 classLoader 已经被回收</li>
+<li>该类对应的 Class 对象没有任何地方可以被引用，通过反射访问不到该 Class 对象</li>
+</ol>
+<p>满足以上的条件，JVM 会在 GC 的时候，对类进行卸载，即在方法区清除类的信息。</p>
+<p>Java 对象基本是在 JVM 的堆区创建，在创建之前，会触发类的加载、验证、准备、解析初始化等过程，当类的初始化完成后，根据类信息在堆区实例化对象，初始化非静态变量、非静态代码及默认构造方法，当对象使用完后会在合适的时候被 JVM 的垃圾回收器回收。</p>
+</div><div class="tags"><a href="/tags/Java/"><i class="fa fa-tag"></i>Java</a></div><div class="post-nav"><a class="pre" href="/2018/03/01/confusion-subject-observable-observer-android-rxjava2-hell-part8/">Subject 和 Observable + Observer 的混淆指北[ Android RxJava2 ] ( 这什么鬼系列 ) 第八话</a><a class="next" href="/2018/02/05/Java_reference/">Java 引用类型分析与总结</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"/><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Android/">Android</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Emotion/">Emotion</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technology/">Technology</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Translate/">Translate</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/diary/" style="font-size: 15px;">diary</a> <a href="/tags/android/" style="font-size: 15px;">android</a> <a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/Android/" style="font-size: 15px;">Android</a> <a href="/tags/MVC/" style="font-size: 15px;">MVC</a> <a href="/tags/MVP/" style="font-size: 15px;">MVP</a> <a href="/tags/Alpha-beta/" style="font-size: 15px;">Alpha-beta</a> <a href="/tags/Activity/" style="font-size: 15px;">Activity</a> <a href="/tags/Stability/" style="font-size: 15px;">Stability</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" style="font-size: 15px;">系统启动流程</a> <a href="/tags/View/" style="font-size: 15px;">View</a> <a href="/tags/RxJava/" style="font-size: 15px;">RxJava</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/Flutter/" style="font-size: 15px;">Flutter</a> <a href="/tags/PHP/" style="font-size: 15px;">PHP</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 15px;">正则表达式</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/07/flutter-5-reasons-why-you-may-love-it/">Flutter — 五个你会爱上它的原因</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/confusion-subject-observable-observer-android-rxjava2-hell-part8/">Subject 和 Observable + Observer 的混淆指北[ Android RxJava2 ] ( 这什么鬼系列 ) 第八话</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/10/Java_JVM_classloader/">Java 虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/05/Java_reference/">Java 引用类型分析与总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/04/Java_input_output_stream/">Java 输入输出流</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/03/Java_data%20structure_Hashmap/">Java 数据结构实现原理之 HashMap</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/21/Java_data%20structure_ArrayList/">Java 数据结构实现原理之 ArrayList</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/02/Java_BasicKnowledge/">Java 基础知识点梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/android_stability/">Android 系统稳定性问题相关梳理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/05/android_view/">View 的事件体系及工作原理</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">whiplashz.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.jsdelivr.net/gh/fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox/dist/jquery.fancybox.min.css"><link rel="stylesheet" type="text/css" href="/css/search.css?v=0.0.0"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" src="/js/copycode.js" successtext="复制成功!"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
